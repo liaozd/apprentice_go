@@ -47,7 +47,7 @@ func main() {
 	}
 	fmt.Println(sum)
 
-	// 数组是值类型
+	// 数组是值类型，数组长度不一样，类型不同
 	courseA := [3]string{"django", "scrapy", "tornado"}
 	courseB := [...]string{"django1", "s", "t", "s"}
 	fmt.Printf("%T\n", courseA)
