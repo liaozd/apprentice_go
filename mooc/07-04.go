@@ -28,4 +28,20 @@ func main() {
 	replace(subCourse)
 	fmt.Println(subCourse)
 
+	// slice是动态数组，可以动态添加值
+	fmt.Println(subCourse[1])
+	subCourse2 := subCourse[1:3]
+	fmt.Printf("%T, %v", subCourse2, subCourse2)
+
+	// append可以向切片追加元素
+	subCourse2 = append(subCourse2, "imooc")
+	fmt.Println(subCourse2)
+
+	// 初始化0长度的切片，只将0长度值copy进去
+	subCourse3 := []string{}
+	fmt.Println(len(subCourse3))
+	// 拷贝的时候目标对象长度需要设置好保持一致
+	copy(subCourse3, subCourse2)
+	fmt.Println(subCourse3)
+
 }
