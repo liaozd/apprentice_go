@@ -1,13 +1,12 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import "fmt"
 
 func main() {
-	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-	r.Run()
+	var a int16 = 5
+	var b int = 8
+	var c int64
+
+	c = int64(a) + int64(b)
+	fmt.Printf("%d\n", c)
 }
