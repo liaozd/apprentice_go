@@ -21,6 +21,51 @@ func main() {
 	fmt.Printf("s2: %v, len %d, cap: %d \n", s2, len(s2), cap(s2))
 
 	s3 := make([]int, 4) // 只传入一个参数，表示创建4元素
-	fmt.Printf("s3: %v", s3)
+	fmt.Printf("s3: %v, len %d, cap: %d \n", s3, len(s3), cap(s3))
 
+	// 按索引取值
+	fmt.Printf("s3[2] %d \n", s3[2])
+
+	// 超出下标范围，溢出
+	//fmt.Printf("s3[99]", s3[99])
+
+	SubSlice()
+
+	ShareSlice()
+
+}
+
+func SubSlice() {
+	s1 := []int{2, 4, 6, 8, 10}
+
+	// 长度2, cap 4
+	s2 := s1[1:3]
+	fmt.Printf("subslice s2: %v, len %d, cap: %d \n", s2, len(s2), cap(s2))
+
+	// 长度3, cap 4
+	s3 := s1[2:]
+	fmt.Printf("subslice s3: %v, len %d, cap: %d \n", s3, len(s3), cap(s3))
+
+	// 长度3, cap 5
+	s4 := s1[:3]
+	fmt.Printf("subslice s4: %v, len %d, cap: %d \n", s4, len(s4), cap(s4))
+}
+
+func ShareSlice() {
+	s1 := []int{1, 2, 3, 4}
+	s2 := s1[2:]
+	fmt.Printf("s1: %v, len %d, cap: %d address: %p \n", s1, len(s1), cap(s1), &s1)
+	fmt.Printf("s2: %v, len %d, cap: %d address: %p \n", s2, len(s2), cap(s2), &s2)
+
+	s2[0] = 99
+	fmt.Printf("s1: %v, len %d, cap: %d address: %p \n", s1, len(s1), cap(s1), &s1)
+	fmt.Printf("s2: %v, len %d, cap: %d address: %p \n", s2, len(s2), cap(s2), &s2)
+
+	s2 = append(s2, 199)
+	fmt.Printf("s1: %v, len %d, cap: %d address: %p \n", s1, len(s1), cap(s1), &s1)
+	fmt.Printf("s2: %v, len %d, cap: %d address: %p \n", s2, len(s2), cap(s2), &s2)
+
+	s2[1] = 1999
+	fmt.Printf("s1: %v, len %d, cap: %d address: %p \n", s1, len(s1), cap(s1), &s1)
+	fmt.Printf("s2: %v, len %d, cap: %d address: %p \n", s2, len(s2), cap(s2), &s2)
 }
