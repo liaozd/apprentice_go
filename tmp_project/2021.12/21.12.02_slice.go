@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+	"unsafe"
+)
 
 func main() {
 	s1 := []int{1, 2, 3, 4} // 初始化4个元素的切片
@@ -58,22 +62,34 @@ func ShareSlice() {
 	fmt.Printf("s2: %v, len %d, cap: %d address: %p \n", s2, len(s2), cap(s2), &s2)
 	//s1: [1 2 3 4], len 4, cap: 4 address: 0xc00000c108
 	//s2: [3 4], len 2, cap: 2 address: 0xc00000c120
+	echoSlicePtr(s1, s2)
 
 	s2[0] = 99
 	fmt.Printf("s1: %v, len %d, cap: %d address: %p \n", s1, len(s1), cap(s1), &s1)
 	fmt.Printf("s2: %v, len %d, cap: %d address: %p \n", s2, len(s2), cap(s2), &s2)
 	//s1: [1 2 99 4], len 4, cap: 4 address: 0xc00000c108
 	//s2: [99 4], len 2, cap: 2 address: 0xc00000c120
+	echoSlicePtr(s1, s2)
 
 	s2 = append(s2, 199)
 	fmt.Printf("s1: %v, len %d, cap: %d address: %p \n", s1, len(s1), cap(s1), &s1)
 	fmt.Printf("s2: %v, len %d, cap: %d address: %p \n", s2, len(s2), cap(s2), &s2)
 	//s1: [1 2 99 4], len 4, cap: 4 address: 0xc00000c108
 	//s2: [99 4 199], len 3, cap: 4 address: 0xc00000c120
+	echoSlicePtr(s1, s2)
 
 	s2[1] = 1999
 	fmt.Printf("s1: %v, len %d, cap: %d address: %p \n", s1, len(s1), cap(s1), &s1)
 	fmt.Printf("s2: %v, len %d, cap: %d address: %p \n", s2, len(s2), cap(s2), &s2)
 	//s1: [1 2 99 4], len 4, cap: 4 address: 0xc00000c108
 	//s2: [99 1999 199], len 3, cap: 4 address: 0xc00000c120  <-- 这块不知道为什么, s2[1]为什么没有替换掉s1[2]
+	echoSlicePtr(s1, s2)
+
+}
+
+func echoSlicePtr(s1, s2 []int) {
+	rs1 := (*reflect.SliceHeader)(unsafe.Pointer(&s1))
+	rs2 := (*reflect.SliceHeader)(unsafe.Pointer(&s2))
+	fmt.Printf("s1: %x\n", rs1)
+	fmt.Printf("s2: %x\n", rs2)
 }
