@@ -48,8 +48,11 @@ func fun3() {
 	fmt.Println("dir1 =>", string(dir1))
 	fmt.Println("dir2 =>", string(dir2))
 
+	// append的"suffix"还没有超出cap，因此不会申请新的地址保存
 	dir1 = append(dir1, "suffix"...)
+	fmt.Println("after append dir1 with 'suffix")
+	fmt.Printf("dir1 => %v, \n", string(dir1))
+	fmt.Printf("dir2 => %v \n", string(dir2))
+	fmt.Printf("path => %v \n", string(path))
 
-	fmt.Println("dir1 =>", string(dir1))
-	fmt.Println("dir2 =>", string(dir2))
 }
