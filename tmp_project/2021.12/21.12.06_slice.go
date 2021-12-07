@@ -1,6 +1,6 @@
 package main
 
-//https://time.geekbang.org/column/article/330178
+// 陈浩 https://time.geekbang.org/column/article/330178
 
 import (
 	"bytes"
@@ -10,6 +10,7 @@ import (
 func main() {
 	fun1()
 	fun2()
+	fun3()
 }
 
 func fun1() {
@@ -38,6 +39,17 @@ func fun2() {
 }
 
 func fun3() {
-	path := []byte("A/BB")
+	path := []byte("AAA/BBBBB")
 	sepIndex := bytes.IndexByte(path, '/')
+
+	dir1 := path[:sepIndex]
+	dir2 := path[sepIndex+1:]
+
+	fmt.Println("dir1 =>", string(dir1))
+	fmt.Println("dir2 =>", string(dir2))
+
+	dir1 = append(dir1, "suffix"...)
+
+	fmt.Println("dir1 =>", string(dir1))
+	fmt.Println("dir2 =>", string(dir2))
 }
