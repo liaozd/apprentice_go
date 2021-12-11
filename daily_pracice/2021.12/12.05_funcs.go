@@ -18,6 +18,13 @@ func main() {
 	Fun4("hello", 19, "A", "D")
 	s := []string{"a", "b", "c"}
 	Fun4("hello", 19, s...)
+
+	// 匿名函数
+	var Add = func(a, b int) int {
+		return a + b
+	}
+	print("匿名函数调用: ")
+	println(Add(1, 2))
 }
 
 // Fun0 单一返回值，不需要括号
