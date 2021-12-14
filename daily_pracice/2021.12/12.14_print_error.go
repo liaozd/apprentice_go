@@ -4,11 +4,12 @@ import "fmt"
 
 type MyString string
 
-//func (m MyString) StringStackOverflow() string {
+//func (m MyString) String() string {
 //	return fmt.Sprintf("MyString=%s", m) // 错误：会无限递归
 //}
 
-func (m MyString) StringOK() string {
+// 需为该类型定义一个具有 String() string 签名的方法
+func (m MyString) String() string {
 	return fmt.Sprintf("MyString=%s", string(m)) // 可以：注意转换
 }
 
