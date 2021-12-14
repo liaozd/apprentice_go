@@ -4,8 +4,12 @@ import "fmt"
 
 type MyString string
 
-func (m MyString) String() string {
-	return fmt.Sprintf("MyString=%s", m) // 错误：会无限递归
+//func (m MyString) StringStackOverflow() string {
+//	return fmt.Sprintf("MyString=%s", m) // 错误：会无限递归
+//}
+
+func (m MyString) StringOK() string {
+	return fmt.Sprintf("MyString=%s", string(m)) // 可以：注意转换
 }
 
 //./12.14_print_error.go:8 +0xd2 fp=0xc020167a30 sp=0xc0201679a0 pc=0x496492
