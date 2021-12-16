@@ -32,6 +32,5 @@ func (s Sequence) String() string {
 }
 func main() {
 	s := Sequence{1, 2, 3}
-	ss := s.String()
-	fmt.Println(ss)
+	fmt.Println(s)
 }
