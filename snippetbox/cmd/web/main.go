@@ -6,6 +6,12 @@ import (
 )
 
 func main() {
+	//Throughout this project so far we’ve been using the HandleFunc() method to register our
+	//handler functions with the servemux. This is just some syntactic sugar that transforms a
+	//function to a handler and registers it in one step, instead of having to do it manually. The
+	//code above is functionality equivalent to this:
+	//
+	// mux.Handle("/", http.HandlerFunc(home))
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", home)
 
