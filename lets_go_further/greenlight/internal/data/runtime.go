@@ -5,11 +5,11 @@ import (
 	"strconv"
 )
 
-// Declare a custom Runtime type, which has the underlying type int32 (the same as our
+// Runtime Declare a custom Runtime type, which has the underlying type int32 (the same as our
 // Movie struct field).
 type Runtime int32
 
-// We’re deliberately using a value receiver for our MarshalJSON() method rather than a
+// MarshalJSON We’re deliberately using a value receiver for our MarshalJSON() method rather than a
 // pointerreceiverlikefunc (r *Runtime) MarshalJSON().Thisgivesusmoreflexibility because
 // it means that our custom JSON encoding will work on both Runtime values and pointers
 // to Runtime values. As Effective Go mentions:
