@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"greenlight.alexedwards.net/internal/data"
+	"greenlight.alexedwards.net/internal/validator"
 	"net/http"
 	"time"
 )
@@ -18,6 +19,28 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 		Genres  []string     `json:"genres"`
 	}
 
+	v := validator.New()
+
+	v.Check(input.Title != "", "title", "must be provided")
+	v.Check(len(input.Title) <= 500, "title", "must not be more than 500 bytes long")
+
+	v.Check(input.Year != 0, "year", "must be provided")
+	v.Check(input.Year >= 1888, "year", "must be greater than 1888")
+	v.Check(input.Year <= int32(time.Now().Year()), "year", "must not be in the future")
+
+	v.Check(input.Runtime != 0, "runtime", "must be provided")
+	v.Check(input.Runtime > 0, "runtime", "must be a positive integer")
+	v.Check(input.Genres != nil, "genres", "must be provided")
+	v.Check(len(input.Genres) >= 1, "genres", "must contain at least 1 genre")
+	v.Check(len(input.Genres) <= 5, "genres", "must not contain more than 5 genres")
+	// Note that we're using the Unique helper in the line below to check that all
+	// values in the input.Genres slice are unique.
+	v.Check(validator.Unique(input.Genres), "genres", "must not contain duplicate values")
+
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
 	err := app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
@@ -31,25 +54,6 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 // the interpolated "id" parameter from the current URL and include it in a placeholder
 // response.
 func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request) {
-	/* 在使用readIDParam() helper之前的版本
-	// When httprouter is parsing a request, any interpolated URL parameters will be
-	// stored in the request context. We can use the ParamsFromContext() function to
-	// retrieve a slice containing these parameter names and values.
-	params := httprouter.ParamsFromContext(r.Context())
-
-	// We can then use the ByName() method to get the value of the "id" parameter from
-	// the slice. In our project all movies will have a unique positive integer ID, but
-	// the value returned by ByName() is always a string. So we try to convert it to a
-	// base 10 integer (with a bit size of 64). If the parameter couldn't be converted,
-	// or is less than 1, we know the ID is invalid so we use the http.NotFound()
-	// function to return a 404 Not Found response.
-	id, err := strconv.ParseInt(params.ByName("id"), 10, 64)
-	if err != nil || id < 1 {
-		http.NotFound(w, r)
-		return
-	}
-	*/
-
 	id, err := app.readIDParam(r)
 	if err != nil {
 		app.notFoundResponse(w, r)
