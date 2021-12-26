@@ -19,35 +19,45 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 		Genres  []string     `json:"genres"`
 	}
 
-	v := validator.New()
-
-	v.Check(input.Title != "", "title", "must be provided")
-	v.Check(len(input.Title) <= 500, "title", "must not be more than 500 bytes long")
-
-	v.Check(input.Year != 0, "year", "must be provided")
-	v.Check(input.Year >= 1888, "year", "must be greater than 1888")
-	v.Check(input.Year <= int32(time.Now().Year()), "year", "must not be in the future")
-
-	v.Check(input.Runtime != 0, "runtime", "must be provided")
-	v.Check(input.Runtime > 0, "runtime", "must be a positive integer")
-	v.Check(input.Genres != nil, "genres", "must be provided")
-	v.Check(len(input.Genres) >= 1, "genres", "must contain at least 1 genre")
-	v.Check(len(input.Genres) <= 5, "genres", "must not contain more than 5 genres")
-	// Note that we're using the Unique helper in the line below to check that all
-	// values in the input.Genres slice are unique.
-	v.Check(validator.Unique(input.Genres), "genres", "must not contain duplicate values")
-
-	if !v.Valid() {
-		app.failedValidationResponse(w, r, v.Errors)
-		return
-	}
 	err := app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	fmt.Fprintf(w, "%+v\n", input)
+	// Copy the values from the input struct to a new Movie struct.
+	movie := &data.Movie{
+		Title:   input.Title,
+		Year:    input.Year,
+		Runtime: input.Runtime,
+		Genres:  input.Genres,
+	}
+
+	v := validator.New()
+
+	if data.ValidateMovie(v, movie); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	// Call the Insert() method on our movies model, passing in a pointer to the
+	// validated movie struct. This will create a record in the database and update the
+	// movie struct with the system-generated information.
+	err = app.models.Movies.Insert(movie)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+
+	// 当发送 HTTP 响应时，我们希望包含一个 Location 标头，让客户端知道他们可以在哪个 URL 上找到新创建的资源。
+	// 我们创建一个空的 http.Header 映射，然后使用 Set() 方法添加一个新的 Location 标头，
+	// 在 URL 中为我们的新电影插入系统生成的 ID
+	headers := make(http.Header)
+	headers.Set("Location", fmt.Sprintf("/v1/movies/%d", movie.ID))
+
+	err = app.writeJSON(w, http.StatusCreated, envelop{"movie": movie}, headers)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 // Add a showMovieHandler for the "GET /v1/movies/:id" endpoint. For now, we retrieve
