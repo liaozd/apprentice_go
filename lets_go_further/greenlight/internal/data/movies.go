@@ -98,7 +98,8 @@ RETURNING version`
 	args := []interface{}{movie.Title,
 		movie.Year, movie.Runtime, pq.Array(movie.Genres), movie.ID,
 	}
-	// Use the QueryRow() method to execute the query, passing in the args slice as a // variadic parameter and scanning the new version value into the movie struct.
+	// Use the QueryRow() method to execute the query, passing in the args slice as a
+	// variadic parameter and scanning the new version value into the movie struct.
 	return m.DB.QueryRow(query, args...).Scan(&movie.Version)
 }
 
