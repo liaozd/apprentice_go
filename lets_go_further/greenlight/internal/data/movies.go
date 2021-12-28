@@ -52,7 +52,11 @@ func (m MovieModel) Insert(movie *Movie) error {
 
 	args := []interface{}{movie.Title, movie.Year, movie.Runtime, pq.Array(movie.Genres)}
 
-	return m.DB.QueryRow(query, args...).Scan(&movie.ID, &movie.CreatedAt, &movie.Version)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	// Use QueryRowContext() and pass the context as the first argument.
+	return m.DB.QueryRowContext(ctx, query, args...).Scan(&movie.ID, &movie.CreatedAt, &movie.Version)
 }
 
 func (m MovieModel) Get(id int64) (*Movie, error) {
@@ -73,7 +77,6 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 	// 如果通道关闭，则 pq 向 PostgreSQL 发送取消信号。 PostgreSQL 终止查询，然后将我们在上面看到的错误消息作为对原始
 	// pq goroutine 的响应发送。 然后将该错误消息返回到我们的数据库模型的 Get() 方法。
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-
 	defer cancel()
 
 	err := m.DB.QueryRowContext(ctx, query, id).Scan(
@@ -119,9 +122,10 @@ func (m MovieModel) Update(movie *Movie) error {
 		movie.Version,
 	}
 
-	// Use the QueryRow() method to execute the query, passing in the args slice as a
-	// variadic parameter and scanning the new version value into the movie struct.
-	err := m.DB.QueryRow(query, args...).Scan(&movie.Version)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&movie.Version)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
@@ -142,10 +146,12 @@ func (m MovieModel) Delete(id int64) error {
 	query := `
 		DELETE FROM movies
 		WHERE id = $1`
-	// Execute the SQL query using the Exec() method, passing in the id variable as
-	// the value for the placeholder parameter. The Exec() method returns a sql.Result
-	// object.
-	result, err := m.DB.Exec(query, id)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	// Use ExecContext() and pass the context as the first argument.
+	result, err := m.DB.ExecContext(ctx, query, id)
 	if err != nil {
 		return err
 	}
