@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"github.com/lib/pq"
@@ -45,9 +46,9 @@ func (m MovieModel) Insert(movie *Movie) error {
 	// Define the SQL query for inserting a new record in the movies table and returning
 	// the system-generated data.
 	query := `
-INSERT INTO movies (title, year, runtime, genres)
-VALUES ($1, $2, $3, $4)
-RETURNING id, created_at, version`
+		INSERT INTO movies (title, year, runtime, genres)
+		VALUES ($1, $2, $3, $4)
+		RETURNING id, created_at, version`
 
 	args := []interface{}{movie.Title, movie.Year, movie.Runtime, pq.Array(movie.Genres)}
 
@@ -60,12 +61,22 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 	}
 
 	query := `
-SELECT id, created_at, title, year, runtime, genres, version
-FROM movies
-WHERE id = $1`
+		SELECT pg_sleep(10), id, created_at, title, year, runtime, genres, version
+		FROM movies
+		WHERE id = $1`
+
 	var movie Movie
 
-	err := m.DB.QueryRow(query, id).Scan(
+	// 我们的上下文（具有 3 秒超时的上下文）有一个 Done 通道，当达到超时时，Done 通道将关闭。
+	// 当 SQL 查询运行时，我们的数据库驱动程序 pq 也在运行一个后台 goroutine，它监听这个 Done 通道。
+	// 如果通道关闭，则 pq 向 PostgreSQL 发送取消信号。 PostgreSQL 终止查询，然后将我们在上面看到的错误消息作为对原始
+	// pq goroutine 的响应发送。 然后将该错误消息返回到我们的数据库模型的 Get() 方法。
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(
+		&[]byte{}, // pg_sleep(10) return value
 		&movie.ID,
 		&movie.CreatedAt,
 		&movie.Title,
@@ -92,10 +103,10 @@ func (m MovieModel) Update(movie *Movie) error {
 	// number.
 	// curl -i -X PATCH -d '{"runtime": "97 mins"}' "localhost:4000/v1/movies/4" & curl -i -X PATCH -d '{"genres": ["comedy","drama"]}' "localhost:4000/v1/movies/4" &
 	query := `
-UPDATE movies
-SET title = $1, year = $2, runtime = $3, genres = $4, version = version + 1 
-WHERE id = $5 AND version = $6
-RETURNING version`
+		UPDATE movies
+		SET title = $1, year = $2, runtime = $3, genres = $4, version = version + 1 
+		WHERE id = $5 AND version = $6
+		RETURNING version`
 
 	// Create an args slice containing the values for the placeholder parameters.
 	args := []interface{}{
@@ -128,8 +139,8 @@ func (m MovieModel) Delete(id int64) error {
 	}
 	// Construct the SQL query to delete the record.
 	query := `
-DELETE FROM movies
-WHERE id = $1`
+		DELETE FROM movies
+		WHERE id = $1`
 	// Execute the SQL query using the Exec() method, passing in the id variable as
 	// the value for the placeholder parameter. The Exec() method returns a sql.Result
 	// object.
