@@ -29,6 +29,14 @@ func (f Filters) sortDirection() string {
 	return "ASC"
 }
 
+func (f Filters) limit() int {
+	return f.PageSize
+}
+
+func (f Filters) offset() int {
+	return (f.Page - 1) * f.PageSize
+}
+
 func ValidateFilters(v *validator.Validator, f Filters) {
 	// curl "localhost:4000/v1/movies?page=-1&page_size=-1&sort=foo"
 	//{
