@@ -1,12 +1,32 @@
 package data
 
-import "greenlight.alexedwards.net/internal/validator"
+import (
+	"greenlight.alexedwards.net/internal/validator"
+	"strings"
+)
 
 type Filters struct {
 	Page         int
 	PageSize     int
 	Sort         string
 	SortSafelist []string
+}
+
+func (f Filters) sortColumn() string {
+	// curl "localhost:4000/v1/movies?sort=-title"
+	for _, safeValue := range f.SortSafelist {
+		if f.Sort == safeValue {
+			return strings.TrimPrefix(f.Sort, "-")
+		}
+	}
+	panic("unsafe sort parameter:" + f.Sort)
+}
+
+func (f Filters) sortDirection() string {
+	if strings.HasPrefix(f.Sort, "-") {
+		return "DESC"
+	}
+	return "ASC"
 }
 
 func ValidateFilters(v *validator.Validator, f Filters) {
