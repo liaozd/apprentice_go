@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"golang.org/x/time/rate"
 	"net/http"
 )
 
@@ -16,6 +17,20 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 
 			}
 		}()
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) rateLimit(next http.Handler) http.Handler {
+	//  for i in {1..6}; do curl http://localhost:4000/v1/healthcheck; done
+	limiter := rate.NewLimiter(2, 4)
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !limiter.Allow() {
+			app.rateLimitExceededResponse(w, r)
+			return
+		}
 
 		next.ServeHTTP(w, r)
 	})
