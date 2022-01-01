@@ -13,6 +13,10 @@ func (app *application) healthcheckHandler(w http.ResponseWriter, r *http.Reques
 		},
 	}
 
+	// curl localhost:4000/v1/healthcheck & pkill -SIGTERM api
+	// 用来模拟平滑退出
+	//time.Sleep(4 * time.Second)
+
 	err := app.writeJSON(w, http.StatusOK, env, nil)
 	if err != nil {
 		// Use the new serverErrorResponse() helper.
