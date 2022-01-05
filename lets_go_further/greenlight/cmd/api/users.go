@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"greenlight.alexedwards.net/internal/data"
 	"greenlight.alexedwards.net/internal/validator"
 	"net/http"
@@ -53,19 +52,27 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	// 启动一个匿名的goroutine
-	go func() {
-		// 运行一个延迟函数，它使用recover() 来捕捉任何恐慌，并记录错误消息而不是终止应用程序。
-		defer func() {
-			if err := recover(); err != nil {
-				app.logger.PrintError(fmt.Errorf("%s", err), nil)
-			}
-		}()
+	// 下面是没有使用app.background helper的版本
+	//go func() {
+	//	// 运行一个延迟函数，它使用recover() 来捕捉任何恐慌，并记录错误消息而不是终止应用程序。
+	//	defer func() {
+	//		if err := recover(); err != nil {
+	//			app.logger.PrintError(fmt.Errorf("%s", err), nil)
+	//		}
+	//	}()
+	//
+	//	err = app.mailer.Send(user.Email, "user_welcome.tmpl", user)
+	//	if err != nil {
+	//		app.logger.PrintError(err, nil)
+	//	}
+	//}()
 
+	app.background(func() {
 		err = app.mailer.Send(user.Email, "user_welcome.tmpl", user)
 		if err != nil {
 			app.logger.PrintError(err, nil)
 		}
-	}()
+	})
 
 	// 注意这里是202状态接受，而不是201成功状态
 	err = app.writeJSON(w, http.StatusAccepted, envelop{"user": user}, nil)

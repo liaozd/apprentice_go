@@ -178,3 +178,15 @@ func (app *application) readInt(qs url.Values, key string, defaultValue int, v *
 
 	return i
 }
+
+// background() 接收任意函数作为参数传入
+func (app *application) background(fn func()) {
+	go func() {
+		if err := recover(); err != nil {
+			app.logger.PrintError(fmt.Errorf("%s", err), nil)
+		}
+	}()
+
+	// 执行参数中传入的任意函数
+	fn()
+}
