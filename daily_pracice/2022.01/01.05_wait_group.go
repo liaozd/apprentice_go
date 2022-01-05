@@ -23,5 +23,5 @@ func main() {
 	// goroutines have completed.
 	wg.Wait()
 
-	fmt.Println("all finished\n")
+	fmt.Println("all finished")
 }
