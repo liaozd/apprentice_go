@@ -17,7 +17,6 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 			if err := recover(); err != nil {
 				w.Header().Set("Connection", "close")
 				app.serverErrorResponse(w, r, fmt.Errorf("%s", err))
-
 			}
 		}()
 
@@ -83,13 +82,13 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 				app.rateLimitExceededResponse(w, r)
 				return
 			}
-		}
 
-		// Very importantly, unlock the mutex before calling the next handler in the
-		// chain. Notice that we DON'T use defer to unlock the mutex, as that would mean
-		// that the mutex isn't unlocked until all the handlers downstream of this
-		// middleware have also returned.
-		mu.Unlock()
+			// Very importantly, unlock the mutex before calling the next handler in the
+			// chain. Notice that we DON'T use defer to unlock the mutex, as that would mean
+			// that the mutex isn't unlocked until all the handlers downstream of this
+			// middleware have also returned.
+			mu.Unlock()
+		}
 
 		next.ServeHTTP(w, r)
 	})

@@ -8,6 +8,7 @@ import (
 	"greenlight.alexedwards.net/internal/jsonlog"
 	"greenlight.alexedwards.net/internal/mailer"
 	"os"
+	"sync"
 	"time"
 
 	// Import the pq driver so that it can register itself with the database/sql
@@ -57,6 +58,9 @@ type application struct {
 	logger *jsonlog.Logger
 	models data.Models
 	mailer mailer.Mailer
+	// Include a sync.WaitGroup in the application struct. The zero-value for a
+	// sync.WaitGroup type is a valid, useable, sync.WaitGroup with a 'counter' value of 0
+	wg sync.WaitGroup
 }
 
 func main() {
