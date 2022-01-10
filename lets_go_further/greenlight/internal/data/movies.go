@@ -66,8 +66,7 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 	}
 
 	query := `
--- 		SELECT pg_sleep(10), id, created_at, title, year, runtime, genres, version
-		SELECT pg_sleep(10), id, created_at, title, year, runtime, genres, version
+		SELECT id, created_at, title, year, runtime, genres, version
 		FROM movies
 		WHERE id = $1`
 
@@ -81,7 +80,6 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 	defer cancel()
 
 	err := m.DB.QueryRowContext(ctx, query, id).Scan(
-		//&[]byte{}, // pg_sleep(10) return value
 		&movie.ID,
 		&movie.CreatedAt,
 		&movie.Title,
