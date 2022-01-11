@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"expvar"
 	"flag"
 	"greenlight.alexedwards.net/internal/data"
 	"greenlight.alexedwards.net/internal/jsonlog"
@@ -125,6 +126,20 @@ func main() {
 	defer db.Close()
 
 	logger.PrintInfo("database connection pool established.", nil)
+
+	expvar.NewString("version").Set(version)
+
+	expvar.Publish("goroutines", expvar.Func(func() interface{} {
+		return db.Stats()
+	}))
+
+	expvar.Publish("databases", expvar.Func(func() interface{} {
+		return db.Stats()
+	}))
+
+	expvar.Publish("timestamp", expvar.Func(func() interface{} {
+		return time.Now().Unix()
+	}))
 
 	app := &application{
 		config: cfg,
