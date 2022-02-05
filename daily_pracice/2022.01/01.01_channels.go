@@ -12,5 +12,6 @@ func main() {
 	}()
 
 	msg := <-messages
-	fmt.Println(msg)
+	fmt.Println("after chan msg")
+	fmt.Println("got channel msg: ", msg)
 }
