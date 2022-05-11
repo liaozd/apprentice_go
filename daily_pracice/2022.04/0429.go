@@ -13,7 +13,7 @@ func slowFunc2(c chan string) {
 func main() {
 	c := make(chan string)
 	go slowFunc2(c)
-
+	fmt.Println("after go slowFunc2")
 	msg := <-c
 	fmt.Println(msg)
 }
