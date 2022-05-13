@@ -9,7 +9,7 @@ func pinger(c chan string) {
 	t := time.NewTicker(1 * time.Second)
 	for {
 		c <- "ping"
-		<-t.C
+		<-t.C // 用于实现每秒钟发送一条
 	}
 }
 
