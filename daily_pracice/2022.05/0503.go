@@ -29,5 +29,7 @@ func main() {
 		fmt.Println("received", msg1)
 	case msg2 := <-channel2:
 		fmt.Println("received", msg2)
+	case <-time.After(500 * time.Microsecond):
+		fmt.Println("超时500毫秒后执行")
 	}
 }
