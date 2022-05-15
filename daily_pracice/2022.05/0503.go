@@ -6,7 +6,7 @@ import (
 )
 
 func ping1(c chan string) {
-	time.Sleep(time.Second * 1)
+	time.Sleep(time.Second * 2)
 	c <- "ping on channel1"
 }
 
@@ -27,7 +27,7 @@ func main() {
 	select {
 	case msg1 := <-channel1:
 		fmt.Println("received", msg1)
-	case msg2 := <-channel1:
+	case msg2 := <-channel2:
 		fmt.Println("received", msg2)
 	}
 }
