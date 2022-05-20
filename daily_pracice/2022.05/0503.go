@@ -30,6 +30,8 @@ func main() {
 	case msg2 := <-channel2:
 		fmt.Println("received", msg2)
 	case <-time.After(500 * time.Microsecond):
+		//通过使用超时时间，可在指定时间过后从select语句返回，从而结束阻塞操作。select语句根据最先到达的消息执行相应的case语句；
+		//通过指定超时时间，可在给定时间内没有收到任何消息时从select语句返回。
 		fmt.Println("超时500毫秒后执行")
 	}
 }
